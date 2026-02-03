@@ -1,0 +1,33 @@
+{
+  "horizon_days": 365,
+  "policies": ["RTF", "TBM"],
+
+  "failure": {
+    "dist": "weibull",
+    "shape_k": 2.0,
+    "scale_lambda_days": 120.0
+  },
+
+  "repair": {
+    "dist": "lognormal",
+    "mean_hours": 12.0,
+    "sigma": 0.4
+  },
+
+  "pm": {
+    "interval_days": 30,
+    "duration_hours": 4.0,
+    "cost": 2000.0
+  },
+
+  "costs": {
+    "downtime_per_hour": 500.0,
+    "repair_cost": 8000.0,
+    "failure_penalty": 20000.0
+  },
+
+  "monte_carlo": {
+    "n_runs": 10000,
+    "seed": 42
+  }
+}
