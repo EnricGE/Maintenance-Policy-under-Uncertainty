@@ -1,14 +1,18 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
-
 import numpy as np
 import pandas as pd
 
 from maintenance_policy.preprocessing.loaders import load_scenario
 from maintenance_policy.simulation.simulator import simulate
+from maintenance_policy.visualization.results_plots import (
+    plot_cost_distribution,
+    plot_downtime_distribution,
+    plot_risk_reward,
+)
 
+plots_dir = Path("outputs/results_plots")
 
 def summarize(df: pd.DataFrame) -> pd.DataFrame:
     def p95(x: pd.Series) -> float:
@@ -63,6 +67,10 @@ def main() -> None:
     summary.to_csv(out_dir / "summary.csv", index=False)
     print(f"\nSaved: {out_dir/'sim_runs.csv'}")
     print(f"Saved: {out_dir/'summary.csv'}")
+
+    plot_cost_distribution(df, plots_dir)
+    plot_downtime_distribution(df, plots_dir)
+    plot_risk_reward(df, plots_dir)
 
 
 if __name__ == "__main__":
