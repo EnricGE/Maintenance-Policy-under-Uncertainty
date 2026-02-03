@@ -10,6 +10,7 @@ from maintenance_policy.visualization.results_plots import (
     plot_cost_distribution,
     plot_downtime_distribution,
     plot_risk_reward,
+    plot_boxplots
 )
 
 plots_dir = Path("outputs/results_plots")
@@ -72,6 +73,21 @@ def main() -> None:
     plot_downtime_distribution(df, plots_dir)
     plot_risk_reward(df, plots_dir)
 
+    plot_boxplots(
+        df,
+        metric="total_cost",
+        ylabel="Total cost",
+        title="Total cost by maintenance policy",
+        out_path=plots_dir / "cost_boxplot.png",
+    )
+
+    plot_boxplots(
+        df,
+        metric="downtime_hours",
+        ylabel="Downtime (hours)",
+        title="Downtime by maintenance policy",
+        out_path=plots_dir / "downtime_boxplot.png",
+    )
 
 if __name__ == "__main__":
     main()

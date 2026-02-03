@@ -23,7 +23,7 @@
   "costs": {
     "downtime_per_hour": 500.0,
     "repair_cost": 8000.0,
-    "failure_penalty": 20000.0
+    "failure_penalty": 12000.0
   },
 
   "monte_carlo": {
