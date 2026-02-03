@@ -90,6 +90,37 @@ def main() -> None:
 
     print(f"\nSaved plots to: {out_dir.resolve()}")
 
+    # --------------------------------------------------
+    # Failure distribution + PM overlay
+    # --------------------------------------------------
+    failure = scenario["failure"]
+    k = failure["shape_k"]
+    lam = failure["scale_lambda_days"]
+
+    pm = scenario["pm"]
+    interval = pm["interval_days"]
+    horizon = scenario["horizon_days"]
+    pm_times = np.arange(interval, horizon + 1, interval)
+
+    print("\nFailure model (Weibull):")
+    print(f"  shape k = {k}")
+    print(f"  scale λ = {lam} days")
+    print(f"  mean TTF (sample) = {failure_samples.mean():.1f} days")
+
+    plt.figure()
+    plt.hist(failure_samples, bins=50, density=True, alpha=0.7)
+
+    # Overlay PM times
+    for t_pm in pm_times:
+        plt.axvline(t_pm, linestyle="--", linewidth=1, alpha=0.5)
+
+    plt.xlabel("Time to failure (days)")
+    plt.ylabel("Density")
+    plt.title("Failure time distribution with PM schedule overlay")
+    plt.tight_layout()
+    plt.savefig(out_dir / "failure_time_with_pm_overlay.png")
+    plt.close()
+
 
 if __name__ == "__main__":
     main()

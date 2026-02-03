@@ -30,14 +30,6 @@ def main() -> None:
     print(f"  scale λ = {lam} days")
     print(f"  mean TTF (sample) = {failure_samples.mean():.1f} days")
 
-    plt.figure()
-    plt.hist(failure_samples, bins=50, density=True)
-    plt.xlabel("Time to failure (days)")
-    plt.ylabel("Density")
-    plt.title("Failure time distribution")
-    plt.tight_layout()
-    plt.show()
-
     # --------------------------------------------------
     # Repair duration
     # --------------------------------------------------
@@ -53,14 +45,6 @@ def main() -> None:
     print(f"  sigma = {sigma}")
     print(f"  mean (sample) = {repair_samples.mean():.2f} h")
 
-    plt.figure()
-    plt.hist(repair_samples, bins=50, density=True)
-    plt.xlabel("Repair duration (hours)")
-    plt.ylabel("Density")
-    plt.title("Repair duration distribution")
-    plt.tight_layout()
-    plt.show()
-
     # --------------------------------------------------
     # Preventive maintenance schedule
     # --------------------------------------------------
@@ -73,15 +57,6 @@ def main() -> None:
     print("\nPreventive maintenance:")
     print(f"  interval = {interval} days")
     print(f"  number of PM actions = {len(pm_times)}")
-
-    plt.figure()
-    plt.eventplot(pm_times, orientation="horizontal")
-    plt.xlabel("Time (days)")
-    plt.yticks([])
-    plt.title("Planned PM events over horizon")
-    plt.tight_layout()
-    plt.show()
-
 
 if __name__ == "__main__":
     main()
