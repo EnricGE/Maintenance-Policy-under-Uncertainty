@@ -6,7 +6,7 @@ from maintenance_policy.preprocessing.loaders import load_scenario
 
 
 def main() -> None:
-    scenario_path = Path("data/generated/v0/scenario.json").resolve()
+    scenario_path = Path("data/generated/v1/scenario.json").resolve()
     scenario = load_scenario(scenario_path)
 
     out_dir = Path("outputs/scenario_analysis")
@@ -43,7 +43,7 @@ def main() -> None:
     plt.close()
 
     # --------------------------------------------------
-    # Repair duration
+    # Repair duration distribution
     # --------------------------------------------------
     repair = scenario["repair"]
     mean_h = repair["mean_hours"]
@@ -120,6 +120,56 @@ def main() -> None:
     plt.tight_layout()
     plt.savefig(out_dir / "failure_time_with_pm_overlay.png")
     plt.close()
+
+    # --------------------------------------------------
+    # CBM parameters + inspection schedule
+    # --------------------------------------------------
+    cbm = scenario.get("cbm")
+    if cbm is None:
+        print("\nCBM: not present in scenario.json (no 'cbm' key).")
+    else:
+        inspect_interval = int(cbm["inspect_interval_days"])
+        inspect_cost = float(cbm.get("inspect_cost", 0.0))
+        threshold_days = float(cbm["threshold_days"])
+        action_cost = float(cbm.get("action_cost", 0.0))
+        action_duration_h = float(cbm.get("action_duration_hours", 0.0))
+
+        inspect_times = np.arange(inspect_interval, horizon + 1, inspect_interval)
+
+        print("\nCondition-Based Maintenance (CBM):")
+        print(f"  inspect interval = {inspect_interval} days")
+        print(f"  inspect cost = {inspect_cost}")
+        print(f"  threshold (age) = {threshold_days} days")
+        print(f"  action cost = {action_cost}")
+        print(f"  action duration = {action_duration_h} h")
+        print(f"  number of inspections over horizon = {len(inspect_times)}")
+
+        # Inspection schedule plot
+        plt.figure()
+        plt.eventplot(inspect_times, orientation="horizontal")
+        plt.xlabel("Time (days)")
+        plt.yticks([])
+        plt.title("CBM inspection events over horizon")
+        plt.tight_layout()
+        plt.savefig(out_dir / "cbm_inspection_schedule.png")
+        plt.close()
+
+        # Simple “age threshold” visualization
+        # Age increases linearly; threshold is a horizontal line.
+        t = np.arange(0, horizon + 1)
+        age = t  # assumes no reset; just to show what "threshold_days" means visually
+
+        plt.figure()
+        plt.plot(t, age, label="Age since last reset (illustration)")
+        plt.axhline(threshold_days, linestyle="--", label="CBM threshold")
+        plt.xlabel("Time (days)")
+        plt.ylabel("Age (days)")
+        plt.title("CBM threshold meaning (illustration)")
+        plt.tight_layout()
+        plt.savefig(out_dir / "cbm_threshold_illustration.png")
+        plt.close()
+
+    print(f"\nSaved plots to: {out_dir.resolve()}")
 
 
 if __name__ == "__main__":
