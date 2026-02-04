@@ -1,0 +1,48 @@
+{
+  "horizon_days": 365,
+  "policies": ["RTF", "TBM", "CBM"],
+
+  "failure": {
+    "dist": "weibull",
+    "shape_k": 2.0,
+    "scale_lambda_days": 120.0
+  },
+
+  "repair": {
+    "dist": "lognormal",
+    "mean_hours": 12.0,
+    "sigma": 0.4
+  },
+
+  "pm": {
+    "interval_days": 46,
+    "duration_hours": 4.0,
+    "cost": 2000.0
+  },
+
+  "cbm": {
+    "inspect_interval_days": 14,
+    "inspect_cost": 100.0,
+    "threshold_days": 75,
+    "action_duration_hours": 2.0,
+    "action_cost": 1000.0
+    },
+
+  "costs": {
+    "downtime_per_hour": 500.0,
+    "repair_cost": 8000.0,
+    "failure_penalty": 12000.0
+  },
+
+  "monte_carlo": {
+    "n_runs": 10000,
+    "seed": 42
+  },
+
+  "optimization": {
+    "risk_lambda": 20000,
+    "tbm_interval_grid": [10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 75, 90, 120],
+    "n_runs": 5000,
+    "seed": 123
+    }
+}

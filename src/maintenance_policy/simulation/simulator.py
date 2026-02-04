@@ -97,6 +97,7 @@ def simulate(
     total_cost = 0.0
     num_failures = 0
     num_pm = 0
+    num_cbm_actions = 0
     num_inspections = 0
     last_reset_day = 0.0  # used by CBM to compute "age"
 
@@ -163,7 +164,7 @@ def simulate(
             age_days = t - last_reset_day
             if age_days >= threshold_days:
                 # Trigger maintenace action
-                num_pm += 1  # you can track as num_cbm_actions separately later
+                num_cbm_actions += 1
             downtime_hours += cbm_action_duration_h
             total_cost += cbm_action_cost + downtime_per_h * cbm_action_duration_h
 
@@ -180,5 +181,6 @@ def simulate(
         "downtime_hours": float(downtime_hours),
         "num_failures": int(num_failures),
         "num_pm": int(num_pm),
+        "num_cbm_actions": int(num_cbm_actions),
         "num_inspections": int(num_inspections),
     }
