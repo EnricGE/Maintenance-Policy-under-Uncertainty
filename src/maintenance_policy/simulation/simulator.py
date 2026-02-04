@@ -165,12 +165,12 @@ def simulate(
             if age_days >= threshold_days:
                 # Trigger maintenace action
                 num_cbm_actions += 1
-            downtime_hours += cbm_action_duration_h
-            total_cost += cbm_action_cost + downtime_per_h * cbm_action_duration_h
+                downtime_hours += cbm_action_duration_h
+                total_cost += cbm_action_cost + downtime_per_h * cbm_action_duration_h
 
-            # Reset after CBM action
-            last_reset_day = t
-            next_failure_day = t + _sample_weibull_time_to_failure_days(rng, k=k, lam_days=lam_days)
+                # Reset after CBM action
+                last_reset_day = t
+                next_failure_day = t + _sample_weibull_time_to_failure_days(rng, k=k, lam_days=lam_days)
 
         # Schedule next inspection
         next_insp_day += float(inspect_interval_days)

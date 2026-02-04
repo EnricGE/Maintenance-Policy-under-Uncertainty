@@ -21,16 +21,16 @@
   },
 
   "cbm": {
-    "inspect_interval_days": 14,
-    "inspect_cost": 100.0,
-    "threshold_days": 75,
-    "action_duration_hours": 2.0,
-    "action_cost": 1000.0
+    "inspect_interval_days": 30,
+    "inspect_cost": 500.0,
+    "threshold_days": 50,
+    "action_duration_hours": 6.0,
+    "action_cost": 2000.0
     },
 
   "costs": {
-    "downtime_per_hour": 500.0,
-    "repair_cost": 8000.0,
+    "downtime_per_hour": 600.0,
+    "repair_cost": 6000.0,
     "failure_penalty": 12000.0
   },
 
@@ -40,7 +40,7 @@
   },
 
   "optimization": {
-    "risk_lambda": 20000,
+    "risk_lambda": 500,
     "tbm_interval_grid": [10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 75, 90, 120],
     "n_runs": 5000,
     "seed": 123
