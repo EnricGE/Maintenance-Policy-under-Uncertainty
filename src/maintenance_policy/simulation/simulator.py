@@ -57,25 +57,33 @@ def simulate(
     policy = policy.upper().strip()
     horizon_days = int(scenario.get("horizon_days", 365))
 
-    # Failure model
+    # Failure model (Run to failure model)
     fail_cfg = scenario.get("failure", {})
     if fail_cfg.get("dist", "weibull").lower() != "weibull":
         raise ValueError("v1 supports only failure.dist='weibull'")
     k = float(fail_cfg.get("shape_k", 2.0))
     lam_days = float(fail_cfg.get("scale_lambda_days", 120.0))
 
-    # Repair model
+    # Repair model 
     rep_cfg = scenario.get("repair", {})
     if rep_cfg.get("dist", "lognormal").lower() != "lognormal":
         raise ValueError("v1 supports only repair.dist='lognormal'")
     repair_mean_h = float(rep_cfg.get("mean_hours", 12.0))
     repair_sigma = float(rep_cfg.get("sigma", 0.4))
 
-    # PM model
+    # PM model (Preventive Maintenance)
     pm_cfg = scenario.get("pm", {})
     pm_interval_days = int(pm_cfg.get("interval_days", 30))
     pm_duration_h = float(pm_cfg.get("duration_hours", 4.0))
     pm_cost = float(pm_cfg.get("cost", 2000.0))
+
+    # CBM Model (Condition-Based Maintenance)
+    cbm_cfg = scenario.get("cbm") or {}
+    inspect_interval_days = int(cbm_cfg.get("inspect_interval_days", 7))
+    inspect_cost = float(cbm_cfg.get("inspect_cost", 0.0))
+    threshold_days = float(cbm_cfg.get("threshold_days", float("inf")))
+    cbm_action_duration_h = float(cbm_cfg.get("action_duration_hours", pm_duration_h))
+    cbm_action_cost = float(cbm_cfg.get("action_cost", pm_cost))
 
     # Costs
     costs = scenario.get("costs", {})
@@ -89,21 +97,28 @@ def simulate(
     total_cost = 0.0
     num_failures = 0
     num_pm = 0
+    num_inspections = 0
+    last_reset_day = 0.0  # used by CBM to compute "age"
 
     # TBM schedule: PM occurs at fixed calendar times
     # We'll track the next scheduled PM day.
     if policy == "TBM":
         next_pm_day = float(pm_interval_days)
+        next_insp_day = float("inf")
     elif policy == "RTF":
         next_pm_day = float("inf")
+        next_insp_day = float("inf")
+    elif policy == "CBM":
+        next_pm_day = float("inf")
+        next_insp_day = float(inspect_interval_days)
     else:
-        raise ValueError("Unknown policy. Use 'RTF' or 'TBM'.")
+        raise ValueError("Unknown policy. Use 'RTF', 'TBM', or 'CBM'.")
     
     # Start with a sampled failure time from "now"
     next_failure_day = t + _sample_weibull_time_to_failure_days(rng, k=k, lam_days=lam_days)
 
     while t < horizon_days:
-        next_event_day = min(next_failure_day, next_pm_day)
+        next_event_day = min(next_failure_day, next_pm_day, next_insp_day)
 
         if next_event_day>= horizon_days:
             #Horizon breaks before next event
@@ -111,8 +126,8 @@ def simulate(
 
         t = next_event_day
 
-        if next_failure_day <= next_pm_day:
-            # FAILURE event
+        if next_event_day == next_failure_day:
+            event = "FAIL"  # FAILURE
             num_failures += 1
 
             repair_duration_h = _sample_lognormal_hours(rng, mean_hours=repair_mean_h, sigma=repair_sigma)
@@ -121,22 +136,43 @@ def simulate(
             total_cost += repair_cost + failure_penalty + downtime_per_h*repair_duration_h
 
             # Reset after repair: sample next failure from now
+            last_reset_day = t
             next_failure_day = t + _sample_weibull_time_to_failure_days(rng, k=k, lam_days=lam_days)
+            # PM schedule stays on calendar; inspection schedule stays on calendar
 
-            # PM schedule continues on calendar (unchanged)
-
-        else:
-            # PM event (TBM only)
+        elif next_event_day == next_pm_day:
+            event = "PM" # TIME-BASED PM (TBM)
             num_pm += 1
 
             downtime_hours += pm_duration_h
             total_cost += pm_cost + downtime_per_h*pm_duration_h
 
             # Reset after PM
+            last_reset_day = t
             next_failure_day = t + _sample_weibull_time_to_failure_days(rng, k=k, lam_days=lam_days)
 
             # Schedule next PM
             next_pm_day += float(pm_interval_days)
+
+        else:
+            event = "INSP" # INSPECTION (CBM)
+            num_inspections += 1
+
+            total_cost += inspect_cost
+
+            age_days = t - last_reset_day
+            if age_days >= threshold_days:
+                # Trigger maintenace action
+                num_pm += 1  # you can track as num_cbm_actions separately later
+            downtime_hours += cbm_action_duration_h
+            total_cost += cbm_action_cost + downtime_per_h * cbm_action_duration_h
+
+            # Reset after CBM action
+            last_reset_day = t
+            next_failure_day = t + _sample_weibull_time_to_failure_days(rng, k=k, lam_days=lam_days)
+
+        # Schedule next inspection
+        next_insp_day += float(inspect_interval_days)
 
     return {
         "policy": policy,
@@ -144,4 +180,5 @@ def simulate(
         "downtime_hours": float(downtime_hours),
         "num_failures": int(num_failures),
         "num_pm": int(num_pm),
+        "num_inspections": int(num_inspections),
     }

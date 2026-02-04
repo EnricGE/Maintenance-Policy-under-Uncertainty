@@ -36,10 +36,10 @@ def summarize(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def main() -> None:
-    scenario_path = Path("data/generated/v0/scenario.json").resolve()
+    scenario_path = Path("data/generated/v1/scenario.json").resolve()
     scenario = load_scenario(scenario_path)
 
-    policies = scenario.get("policies", ["RTF", "TBM"])
+    policies = scenario.get("policies", ["RTF", "TBM", "CBM"])
     mc = scenario.get("monte_carlo", {})
     n_runs = int(mc.get("n_runs", 10_000))
     seed = int(mc.get("seed", 42))
