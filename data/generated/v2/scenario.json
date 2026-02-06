@@ -15,13 +15,13 @@
   },
 
   "pm": {
-    "interval_days": 54,
+    "interval_days": 70,
     "duration_hours": 4.0,
     "cost": 2000.0
   },
 
   "cbm": {
-    "inspect_interval_days": 30,
+    "inspect_interval_days": 25,
     "inspect_cost": 500.0,
     "threshold_days": 50,
     "action_duration_hours": 6.0,
