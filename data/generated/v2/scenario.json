@@ -15,7 +15,7 @@
   },
 
   "pm": {
-    "interval_days": 46,
+    "interval_days": 54,
     "duration_hours": 4.0,
     "cost": 2000.0
   },
