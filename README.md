@@ -1,6 +1,5 @@
-# Choosing a Maintenance Policy Under Failure Uncertainty
+# 🔧 Maintenance Policy Selection — Decision Under Failure Uncertainty
 
-## Decision Intelligence Case Study  
 **Simulation, risk-aware optimisation, and policy comparison**
 
 ---
