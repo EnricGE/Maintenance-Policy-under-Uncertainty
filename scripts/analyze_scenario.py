@@ -6,7 +6,7 @@ from maintenance_policy.preprocessing.loaders import load_scenario
 
 
 def main() -> None:
-    scenario_path = Path("data/generated/v1/scenario.json").resolve()
+    scenario_path = Path("data/generated/v2/scenario.json").resolve()
     scenario = load_scenario(scenario_path)
 
     out_dir = Path("outputs/scenario_analysis")
